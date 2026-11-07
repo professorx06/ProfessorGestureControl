@@ -12,6 +12,7 @@ import android.provider.Settings
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -90,6 +91,9 @@ class MainActivity : Activity() {
             }
         })
 
+        root.addView(heading("Your apps", 19f).apply { setPadding(0, dp(24), 0, dp(8)) })
+        addLaunchableApps(root)
+
         root.addView(heading("Shake to open volume panel", 19f).apply { setPadding(0, dp(24), 0, dp(5)) })
         sensitivityLabel = heading("", 14f, 0xFF586174.toInt())
         root.addView(sensitivityLabel)
@@ -131,6 +135,59 @@ class MainActivity : Activity() {
         refreshStatus()
     }
 
+    private fun addLaunchableApps(root: LinearLayout) {
+        val query = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+        val apps = packageManager.queryIntentActivities(query, 0)
+            .sortedBy { it.loadLabel(packageManager).toString().lowercase() }
+        var row: LinearLayout? = null
+        apps.forEachIndexed { index, info ->
+            if (index % 3 == 0) {
+                row = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                }
+                root.addView(row, LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+                ))
+            }
+            val label = info.loadLabel(packageManager).toString()
+            val icon = info.loadIcon(packageManager)
+            icon.setBounds(0, 0, dp(32), dp(32))
+            val appButton = Button(this).apply {
+                text = label
+                textSize = 11f
+                isAllCaps = false
+                maxLines = 2
+                setCompoundDrawables(null, icon, null, null)
+                compoundDrawablePadding = dp(5)
+                setOnClickListener {
+                    val launch = Intent(Intent.ACTION_MAIN)
+                        .addCategory(Intent.CATEGORY_LAUNCHER)
+                        .setClassName(info.activityInfo.packageName, info.activityInfo.name)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    try { startActivity(launch) } catch (_: Exception) {
+                        Toast.makeText(this@MainActivity, "Unable to open $label", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            row?.addView(appButton, LinearLayout.LayoutParams(0, dp(92), 1f).apply {
+                setMargins(dp(3), dp(3), dp(3), dp(3))
+            })
+        }
+        val remainder = apps.size % 3
+        if (remainder != 0 && row != null) {
+            repeat(3 - remainder) {
+                row?.addView(View(this), LinearLayout.LayoutParams(0, dp(92), 1f))
+            }
+        }
+        if (apps.isEmpty()) {
+            root.addView(TextView(this).apply {
+                text = "No launchable apps were found."
+                textSize = 13f
+            })
+        }
+    }
+
     private fun actionButton(label: String, action: () -> Unit) = Button(this).apply {
         text = label
         isAllCaps = false
@@ -159,7 +216,7 @@ class MainActivity : Activity() {
         }
         try {
             devicePolicy.lockNow()
-        } catch (e: SecurityException) {
+        } catch (_: SecurityException) {
             Toast.makeText(this, "Screen-lock permission is not active", Toast.LENGTH_LONG).show()
         }
     }
