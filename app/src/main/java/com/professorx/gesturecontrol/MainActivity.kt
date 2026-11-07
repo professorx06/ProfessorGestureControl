@@ -142,11 +142,12 @@ class MainActivity : Activity() {
         var row: LinearLayout? = null
         apps.forEachIndexed { index, info ->
             if (index % 3 == 0) {
-                row = LinearLayout(this).apply {
+                val newRow = LinearLayout(this).apply {
                     orientation = LinearLayout.HORIZONTAL
                     gravity = Gravity.CENTER_VERTICAL
                 }
-                root.addView(row, LinearLayout.LayoutParams(
+                row = newRow
+                root.addView(newRow, LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
                 ))
             }
