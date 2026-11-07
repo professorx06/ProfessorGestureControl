@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Professor Gesture Control</string>
+    <string name="device_admin_description">Allows the app to lock the screen when you double-tap the home screen gesture area.</string>
+</resources>
