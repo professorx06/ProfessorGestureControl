@@ -1,21 +1,35 @@
 # Professor Gesture Control
 
-An Android 9+ gesture utility app.
+An Android 9+ utility app with a lightweight custom Home screen.
 
-## Current project status
+## Implemented in this milestone
 
-This repository starts with the Android project foundation. The first implementation milestone focuses on:
-- A light Material-style settings dashboard.
+- Double-tap a marked area on the app's Home screen to lock the display.
+- Uses Android Device Administrator only for the force-lock action. The user must explicitly activate this permission.
+- Offers a setting shortcut to choose Professor Gesture Control as the default Home app.
+- Shows launchable installed apps so the custom Home screen remains usable.
+- Shake detection opens Android's native volume panel.
 - Adjustable shake sensitivity.
-- A foreground sensor service that opens the native Android volume UI.
-- A permission dashboard that reports actual runtime/device-admin status.
+- Basic permission and sensor status dashboard.
+- GitHub Actions workflow builds a debug APK on pushes and pull requests.
 
-## Important platform limitation
+## Important limitations
 
-A regular third-party app cannot reliably wake a fully powered-off display by detecting a double tap. Android stops normal app touch processing while the display is off, and wake gestures are normally handled by device firmware. A Home-screen double-tap-to-lock feature also needs a launcher or a user-enabled accessibility integration. We will not claim either feature is active until its implementation and device behavior are verified.
+- Double-tap-to-lock works in the marked gesture area of this app when it is selected as the default Home app. It does not capture double taps on other launchers' wallpaper.
+- Double-tap-to-wake while the display is fully off is controlled by phone firmware and cannot be implemented reliably by a normal third-party app. Use the phone's built-in wake gesture if available.
+- This source has been pushed, but it still needs a successful CI build and on-device testing before it should be considered release-ready.
 
 ## Build
 
-Open this repository in Android Studio and let Gradle sync. Minimum Android version: Android 9 (API 28).
+Open the repository in Android Studio and sync Gradle. Use JDK 17 and Gradle 8.9 or compatible wrapper. Minimum Android version: Android 9 (API 28).
 
-The project is Kotlin-based and uses Gradle Kotlin DSL.
+## First-time setup on the phone
+
+1. Install the debug APK.
+2. Open Professor Gesture Control.
+3. Tap **Allow screen-lock permission** and approve the Android Device Admin prompt.
+4. Tap **Set as default Home app** and select Professor Gesture Control.
+5. Double-tap the marked blue area to lock the screen.
+6. Enable shake volume control and adjust sensitivity as needed.
+
+To return to the previous launcher, open Android Settings and change the default Home app.
